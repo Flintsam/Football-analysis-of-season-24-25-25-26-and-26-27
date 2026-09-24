@@ -140,6 +140,48 @@ for season, df in filtered_dfs.items():
         .copy()
     )
 
+# ============================================================
+# CALCULATING MEAN OF HYPOTHESIS DF
+# ============================================================
+
+mean_results = []
+
+for season, df in hypothesis_dfs.items():
+
+    for position in ["DF", "MF", "FW"]:
+
+        group = df[df["Pos"] == position]
+
+        mean_results.append([
+            season,
+            position,
+            group["Gls_per90"].mean(),
+            group["Ast_per90"].mean(),
+            group["GA_per90"].mean(),
+            group["+/-"].mean()
+        ])
+
+mean_df = pd.DataFrame(
+    mean_results,
+    columns=[
+        "Season",
+        "Pos",
+        "Gls_per90_mean",
+        "Ast_per90_mean",
+        "GA_per90_mean",
+        "+/-_mean"
+    ]
+)
+
+print("\n===== DESCRIPTIVE MEANS =====")
+print(mean_df)
+
+#saving mean_df
+mean_df.to_csv(
+    "descriptive_means.csv",
+    index=False
+)
+
 
 # ============================================================
 # CHUNK --1 CREATING DUNN AND HOLM FUNCTION FOR H1 and H2
