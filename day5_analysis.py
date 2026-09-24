@@ -1,4 +1,6 @@
 import pandas as pd
+import scikit_posthocs as sp
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 
 # ============================================================
@@ -136,4 +138,146 @@ for season, df in filtered_dfs.items():
     hypothesis_dfs[season] = (
         df[df["Pos"].isin(["DF", "MF", "FW"])]
         .copy()
-    )     
+    )
+
+
+# ============================================================
+# CHUNK --1 CREATING DUNN AND HOLM FUNCTION FOR H1 and H2
+# ============================================================
+
+
+def run_dunn_test(df, value_column):
+
+    result = sp.posthoc_dunn(
+        df,
+        val_col=value_column,
+        group_col="Pos",
+        p_adjust="holm"
+    )
+
+    return result
+
+#Running DUNN for H1
+
+#season 24/25
+h1_2024_25 = run_dunn_test(
+    hypothesis_dfs["2024-25"],
+    "Gls_per90"
+)
+
+#print("\n===== H1 — 2024-25 =====")
+#print(h1_2024_25)
+
+#season 25/26
+h1_2025_26 = run_dunn_test(
+    hypothesis_dfs["2025-26"],
+    "Gls_per90"
+)
+
+#print("\n===== H1 — 2025-26 =====")
+#print(h1_2025_26)
+
+#season 26/27
+h1_2026_27 = run_dunn_test(
+    hypothesis_dfs["2026-27"],
+    "Gls_per90"
+)
+
+#print("\n===== H1 — 2026-27 =====")
+#print(h1_2026_27)
+
+#Running DUNN for H2
+
+#season 24/25
+h2_2024_25 = run_dunn_test(
+    hypothesis_dfs["2024-25"],
+    "GA_per90"
+)
+
+#print("\n===== H2 — 2024-25 =====")
+#print(h2_2024_25)
+
+#season 25/26
+h2_2025_26 = run_dunn_test(
+    hypothesis_dfs["2025-26"],
+    "GA_per90"
+)
+
+#print("\n===== H2 — 2025-26 =====")
+#print(h2_2025_26)
+
+# ============================================================
+# CHUNK --2 CREATING TUKEY HSD FOR H3
+# ============================================================
+
+h3_2024_25 = pairwise_tukeyhsd(
+    endog=hypothesis_dfs["2024-25"]["+/-"],
+    groups=hypothesis_dfs["2024-25"]["Pos"],
+    alpha=0.05
+)
+
+#print("\n===== H3 — 2024-25 =====")
+#print(h3_2024_25)
+
+
+# ============================================================
+# CHUNK --3 CREATING A PROPER TABLE FOR ALL DUNN TEST
+# ============================================================
+
+posthoc_results = [
+
+    # H1 — 2024-25
+    ["H1", "2024-25", "DF vs FW", h1_2024_25.loc["DF", "FW"]],
+    ["H1", "2024-25", "DF vs MF", h1_2024_25.loc["DF", "MF"]],
+    ["H1", "2024-25", "FW vs MF", h1_2024_25.loc["FW", "MF"]],
+
+    # H1 — 2025-26
+    ["H1", "2025-26", "DF vs FW", h1_2025_26.loc["DF", "FW"]],
+    ["H1", "2025-26", "DF vs MF", h1_2025_26.loc["DF", "MF"]],
+    ["H1", "2025-26", "FW vs MF", h1_2025_26.loc["FW", "MF"]],
+
+    # H1 — 2026-27
+    ["H1", "2026-27", "DF vs FW", h1_2026_27.loc["DF", "FW"]],
+    ["H1", "2026-27", "DF vs MF", h1_2026_27.loc["DF", "MF"]],
+    ["H1", "2026-27", "FW vs MF", h1_2026_27.loc["FW", "MF"]],
+
+    # H2 — 2024-25
+    ["H2", "2024-25", "DF vs FW", h2_2024_25.loc["DF", "FW"]],
+    ["H2", "2024-25", "DF vs MF", h2_2024_25.loc["DF", "MF"]],
+    ["H2", "2024-25", "FW vs MF", h2_2024_25.loc["FW", "MF"]],
+
+    # H2 — 2025-26
+    ["H2", "2025-26", "DF vs FW", h2_2025_26.loc["DF", "FW"]],
+    ["H2", "2025-26", "DF vs MF", h2_2025_26.loc["DF", "MF"]],
+    ["H2", "2025-26", "FW vs MF", h2_2025_26.loc["FW", "MF"]],
+]
+
+posthoc_df = pd.DataFrame(
+    posthoc_results,
+    columns=["Hypothesis", "Season", "Comparison", "Adjusted_p"]
+)
+
+posthoc_df["Significant"] = posthoc_df["Adjusted_p"] < 0.05
+
+print("\n===== POST-HOC RESULTS SUMMARY =====")
+print(posthoc_df)
+
+#saving post hoc data
+posthoc_df.to_csv(
+    "posthoc_results.csv",
+    index=False
+)
+
+
+# ============================================================
+# CHUNK --4 CREATING A PROPER TABLE FOR ALL TUKEY TEST
+# ============================================================
+
+
+tukey_df = pd.DataFrame(
+    data=h3_2024_25._results_table.data[1:],
+    columns=h3_2024_25._results_table.data[0]
+)
+
+print("\n===== TUKEY RESULTS SUMMARY =====")
+print(tukey_df)
