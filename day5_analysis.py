@@ -323,3 +323,9 @@ tukey_df = pd.DataFrame(
 
 print("\n===== TUKEY RESULTS SUMMARY =====")
 print(tukey_df)
+
+
+print("\n===== COMMON DATASET COLUMNS =====")
+
+for i, column in enumerate(common_dfs["2024-25"].columns, start=1):
+    print(f"{i}. {column}")
