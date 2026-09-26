@@ -105,5 +105,5 @@ This is Week 2 of a 6-week hands-on exploration to decide a CS specialization th
 
 ## Status
 
-**Week 2 (Data Analytics) — complete**, compressed to 5 working days.
+**Week 2 (Data Analytics) — complete**, compressed to 6 working days.
 Next: Week 3 (AI/ML) → Week 4 (Cloud & Infrastructure) → Week 5 (Integrated Project) → Week 6 (Deep Dive & Decision).
